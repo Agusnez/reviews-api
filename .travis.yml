@@ -1,0 +1,22 @@
+
+language: node_js
+
+node_js: "12"
+
+services:
+  - docker
+  - mongodb
+
+before_install:
+  - wget -qO- https://toolbelt.heroku.com/install.sh | sh
+
+install:
+  - npm install
+  - npm test 
+  - docker build -t reviews . 
+
+deploy:
+  provider: script
+  script: bash scripts/image_pull
+  on:
+    branch: master
