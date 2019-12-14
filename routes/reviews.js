@@ -96,4 +96,30 @@ router.post('/', (req, res) => {
     });
 });
 
+
+
+router.delete('/', (req, res) => {
+   
+
+    //The film's ID of the query is saved in ReviewId
+    var reviewId=req.params.imdbId;
+
+    //Now we execute the delete operation
+    reviews.deleteOne({imdbId:reviewId}, (err)=>{
+        
+        if(!err){ //if the imdbId exists, the review will be deleted
+
+            console.log("The review has been deleted")
+            return res.sendStatus(201);
+
+        }else{ //if the imdbId does not exist, an error message will be sent.
+
+            console.log("The review doesn't exist");
+            return res.sendStatus(400);
+        }
+
+     });
+
+});
+
 module.exports = router;
