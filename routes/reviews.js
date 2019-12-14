@@ -102,10 +102,10 @@ router.delete('/', (req, res) => {
    
 
     //The film's ID of the query is saved in ReviewId
-    var ReviewId=req.params.imbId;
+    var reviewId=req.params.imdbId;
 
     //Now we execute the delete operation
-    reviews.deleteOne({imdbId:ReviewId}, (err)=>{
+    reviews.deleteOne({imdbId:reviewId}, (err)=>{
         
         if(!err){ //if the imdbId exists, the review will be deleted
 
