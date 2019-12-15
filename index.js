@@ -13,29 +13,14 @@
  */
 
 // Load environment variables 
-require('dotenv').config()
+require('dotenv').config();
 
-// App requirements
-const express = require("express");
-const bodyParser = require("body-parser");
-var app = express();
-
-// Our own routes
-var reviews = require("./routes/reviews.js");
+// Load server
+const server = require('./server.js');
 
 // Global utility constants
 const PORT = process.env.PORT || 3000;
-const BASE_URL = '/v1';
 
-// Configuration 
-app.use(bodyParser.json());
-
-app.use(BASE_URL + '/reviews', reviews);
-
-app.get('/', (req, res) => {
-    res.send('Hola mundo!');
-})
-
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log('Listening on port ' + PORT);
 })
