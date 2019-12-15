@@ -15,12 +15,19 @@
 // Load environment variables 
 require('dotenv').config();
 
-// Load server
+const dbConnect = require('./db');
 const server = require('./server.js');
 
 // Global utility constants
 const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => {
-    console.log('Listening on port ' + PORT);
-})
+dbConnect().then(
+    () => {
+        server.listen(PORT, () => {
+            console.log('Listening on port ' + PORT);
+        })
+    },
+    err => {
+        console.log("Connection error: " + err);
+    }
+)
