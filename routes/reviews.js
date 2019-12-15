@@ -122,4 +122,29 @@ router.delete('/', (req, res) => {
 
 });
 
+//creates an impression
+router.post("/", (req,res) =>{
+
+    reviews.findOne({imdbId:req.params.imdbId},(review,err)=>{
+
+        if(!err){
+
+             review.impressions=req.params.value;
+             console.log("Impression created")
+             return res.sendStatus(201);
+
+        }else{
+        console.log("Invalid input, object is not valid")
+        return res.sendStatus(400);
+        }
+
+ 
+    });
+ 
+ 
+ })
+
+
+
+
 module.exports = router;
