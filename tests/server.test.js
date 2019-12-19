@@ -5,6 +5,7 @@ const Review = require('../models/Review');
 
 let server, agent;
 
+
 beforeEach((done) => {
     server = app.listen(4000, (err) => {
       if (err) return done(err);
@@ -16,6 +17,7 @@ beforeEach((done) => {
 afterEach((done) => {
   return  server && server.close(done);
 });
+
 
 describe("Hello world test", () => {
     it("Sould return 200 OK", () => {
@@ -51,8 +53,8 @@ describe("Reviews API", () => {
         });
 
         it("Should return an array", () => {
-            return request(server).get('/v1/reviews').then((response) => {
-                console.log(response);
+            return request(server).get('/').then((response) => {
+                //console.log(response);
                 expect(response.status).toBe(200);
 
             })
