@@ -37,7 +37,7 @@ router.get('/', (req,res) => {
             console.log(Date() + "-" + err);
             res.sendStatus(500);
         } else {
-            
+              
             res.send(retrievedReviews.map((review) => {
                 return review.cleanup();
             }));

@@ -48,15 +48,15 @@ describe("Reviews API", () => {
             ];
 
             dbFind = jest.spyOn(Review, "find");
-            dbFind.mockImplementation((query, f) => {
+            dbFind.mockImplementation((query,x,y, f) => {
                 f(null, reviews);
             });
         });
 
         it("Should return an array", () => {
-            return request(server).get('/').then((response) => {
+            return request(server).get('/v1/reviews').then((response) => {
                 //console.log(response);
-                expect(response.status).toBe(200);
+                expect(response.statusCode).toBe(200);
 
             })
         });
