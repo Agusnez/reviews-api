@@ -22,7 +22,7 @@ afterEach((done) => {
 
 describe("Hello world test", () => {
     it("Should return 200 OK", () => {
-        return request(server).get("/").then((response) => {
+        return request(app).get("/").then((response) => {
             expect(response.status).toBe(200);
         })
     });
@@ -77,7 +77,7 @@ describe("Reviews Api", ()=>{
             ];
 
             dbDeleteOne = jest.spyOn(Review,"deleteOne");
-            dbDeleteOne.mockImplementation((query, callback)=>{
+            dbDeleteOne.mockImplementation((id, callback)=>{
                 callback(null,reviews);
             });
 
@@ -86,10 +86,9 @@ describe("Reviews Api", ()=>{
 
         //.delete(nombre de la review que quieres borrar a través del api path)
         it("Should delete the review if the id exists", () =>{
-            return request(server).del("/").then((response)=>{
-                expect(response.statusCode).toBe(201);
-                expect(response.files).toBeLessThan(2);//prueba fragil
-                
+            return request(server).del("/v1/reviews/review/imdbId=313").then((response)=>{
+                expect(response.statusCode).toBe(200);
+                expect(dbDeleteOne).toHaveBeenCalled();
 
             })
 
@@ -97,8 +96,8 @@ describe("Reviews Api", ()=>{
 
         it("Should return 400 code if the review's Id doesn't exist",() =>{
 
-            return request(server).delete("/").delete.then((response)=>{
-                expect(response.statusCode).toBe(400)
+            return request(server).del("/v1/reviews/imdbId:300").then((response)=>{
+                expect(response.statusCode).toBe(400);
 
             })
 
@@ -106,6 +105,7 @@ describe("Reviews Api", ()=>{
 
         });
 
+    /*
     describe("Post impression method/",()=>{
         let dbFindOne;
 
@@ -117,23 +117,23 @@ describe("Reviews Api", ()=>{
         beforeAll(()=> {
 
             dbFindOne = jest.spyOn(Review,"findOne");
-            dbFindOne.mockImplementation((query, callback)=>{
+            dbFindOne.mockImplementation((id, callback)=>{
                 callback(null,reviews);
             });
         });
 
 
         it("Should update the impressions of a review if the review's id exists", () =>{
-            return request(server).post("/path").send(Review).then((response)=>{
+            return request(server).post("/v1/reviews/imdbId:313").send(Review).then((response)=>{
                 expect(response.statusCode).toBe(201);
             });
         });
 
         it("Should give error 400 if the object as review's id is not valid", () =>{
-            return request(server).post("/path").send(Review).then((response)=>{
+            return request(server).post("/v1/reviews/"+"imdbId:300").send(Review).then((response)=>{
                 expect(response.statusCode).toBe(400);
             });
         });
     });
-    
+    */
 });
