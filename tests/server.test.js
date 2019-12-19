@@ -3,6 +3,7 @@ const request = require('supertest');
 const reviews = require('../routes/reviews.js');
 const Review = require('../models/Review');
 
+
 let server, agent;
 
 
@@ -20,7 +21,7 @@ afterEach((done) => {
 
 
 describe("Hello world test", () => {
-    it("Sould return 200 OK", () => {
+    it("Should return 200 OK", () => {
         return request(server).get("/").then((response) => {
             expect(response.status).toBe(200);
         })
@@ -53,7 +54,7 @@ describe("Reviews API", () => {
         });
 
         it("Should return an array", () => {
-            return request(server).get('/').then((response) => {
+            return request(server).get('routes/reviews').then((response) => {
                 //console.log(response);
                 expect(response.status).toBe(200);
 
