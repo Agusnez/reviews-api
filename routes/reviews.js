@@ -13,7 +13,7 @@ var router = express.Router();
 var db = require('../db.js');
 const Review = require('../models/Review');
 
-router.get('/v1/reviews', (req,res) => {
+router.get('/', (req,res) => {
     console.log(new Date() + " - GET " + req.originalUrl + " by " + req.ip);
 
     var imdbIdQuery = req.query.imdbId || false;
