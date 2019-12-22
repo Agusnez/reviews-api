@@ -12,14 +12,19 @@ var router = express.Router();
 
 var db = require('../db.js');
 const Review = require('../models/Review');
+const Impression = require('../models/Impression');
 
-router.get('/', (req,res) => {
+const auth = require('../auxiliar/authorizationResource');
+
+router.get('/', async (req,res) => {
     console.log(new Date() + " - GET " + req.originalUrl + " by " + req.ip);
 
     var imdbIdQuery = req.query.imdbId || false;
     var userQuery = req.query.user || false;
-    var offset = parseInt(req.query.skip) || 0;
+    var skip = parseInt(req.query.skip) || 0;
     var limit = parseInt(req.query.limit) || 5;
+    var authorizationToken = req.headers.authorization;
+    var username = undefined;
 
     //We dinamically build the query object based on the query params in the request
     var queryObject = {};
@@ -31,19 +36,38 @@ router.get('/', (req,res) => {
     if(userQuery) {
         queryObject['user'] = userQuery;
     }
+
+    if (authorizationToken) {
+        let bearerToken = authorizationToken.split(' ')[1];
+        username = await auth.getUsername(bearerToken).catch((err) => {username = undefined});
+    }    
+
+    const retrievedReviews = await Review.find(queryObject, null, {sort:'-created', skip: skip, limit: limit});
+
+    const count = await Review.countDocuments(queryObject);
     
-    Review.find(queryObject,{'__v': 0},{sort:'-created', skip: offset}, (err, retrievedReviews) => {
-        if (err) {
-            console.log(Date() + "-" + err);
-            res.sendStatus(500);
-        } else {
+    let i = 1;
+
+    const clean = await Promise.all(retrievedReviews.map(async (rawReview) => {
+            const review = rawReview.cleanup();
+            review['index'] = i + skip;
+            review['total'] = count;
+
+            if (username) {
+                const impression = await Impression.findOne({user: username.login, review: review.id});
+                if (impression) {
+                    review[impression.value] = true;
+                }
+            }  
+            i++;
             
-            res.send(retrievedReviews.map((review) => {
-                return review.cleanup();
-            }));
-        }
-    }).limit(limit);
-    
+            return review;
+            
+        }));
+
+        res.send(clean);
+
+
 });
 
 router.post('/', (req, res) => {
