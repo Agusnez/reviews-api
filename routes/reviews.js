@@ -11,28 +11,20 @@ var express = require('express');
 var router = express.Router();
 
 var db = require('../db.js');
+const Review = require('../models/Review');
+const Impression = require('../models/Impression');
 
-const Review = db.model('Review', {
-    imdbId: String,
-    rating: Number,
-    user: String,
-    title: String,
-    content: String,
-    created: Date,
-    impressions: {
-       likes: Number,
-       dislike: Number,
-       spam: Number
-    }
-   });
+const auth = require('../auxiliar/authorizationResource');
 
 router.get('/', async (req,res) => {
     console.log(new Date() + " - GET " + req.originalUrl + " by " + req.ip);
 
-    var imdbIdQuery = req.query.imdbId;
-    var userQuery = req.query.user;
-    var offset = parseInt(req.query.skip) || 0;
+    var imdbIdQuery = req.query.imdbId || false;
+    var userQuery = req.query.user || false;
+    var skip = parseInt(req.query.skip) || 0;
     var limit = parseInt(req.query.limit) || 5;
+    var authorizationToken = req.headers.authorization;
+    var username = undefined;
 
     //We dinamically build the query object based on the query params in the request
     var queryObject = {};
@@ -45,31 +37,37 @@ router.get('/', async (req,res) => {
         queryObject['user'] = userQuery;
     }
 
-    var retrievedReviews = [];
-    retrievedReviews = await Review.find(queryObject,{'__v': 0},{sort:'-created', skip: offset}).limit(limit);
+    if (authorizationToken) {
+        let bearerToken = authorizationToken.split(' ')[1];
+        username = await auth.getUsername(bearerToken).catch((err) => {username = undefined});
+    }    
+
+    const retrievedReviews = await Review.find(queryObject, null, {sort:'-created', skip: skip, limit: limit});
+
+    const count = await Review.countDocuments(queryObject);
     
-    // We will be manipulating the retrieved reviews to add interesting fields to each review
-    var manipulatedReviews = [];
-    retrievedReviews.forEach(review => {
-        var newReview = review.toObject();
+    let i = 1;
 
-        //TODO: Change header("User") to proper token validation
-        if(review.user == req.header("User")) {
-            newReview['yours'] = true;
-        }
+    const clean = await Promise.all(retrievedReviews.map(async (rawReview) => {
+            const review = rawReview.cleanup();
+            review['index'] = i + skip;
+            review['total'] = count;
 
-        //TODO: Check if the user has given any impression on this review (Like Twitter)
+            if (username) {
+                const impression = await Impression.findOne({user: username.login, review: review.id});
+                if (impression) {
+                    review[impression.value] = true;
+                }
+            }  
+            i++;
+            
+            return review;
+            
+        }));
 
-        manipulatedReviews.push(newReview);
-    });
-    
-    const totalReviews = await Review.countDocuments(queryObject);
+        res.send(clean);
 
-    manipulatedReviews[manipulatedReviews.length] = {
-        "totalObjects":totalReviews
-    };
 
-    return res.send(manipulatedReviews);
 });
 
 router.post('/', (req, res) => {
@@ -86,7 +84,7 @@ router.post('/', (req, res) => {
      created: new Date(),
      impressions: {
         likes: 0,
-        dislike: 0,
+        dislikes: 0,
         spam: 0
      }
     });
