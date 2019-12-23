@@ -80,7 +80,7 @@ router.delete('/', (req, res) => {
 
     console.log("the method start");
     //Now we execute the delete operation
-    Review.remove({imdbId:reviewId}, (err)=>{
+    Review.findOneAndRemove({imdbId:reviewId}, (err)=>{
         
         if(!err){ //if the imdbId exists, the review will be deleted
 
@@ -100,7 +100,7 @@ router.delete('/', (req, res) => {
 //creates an impression
 router.post("/", (req,res) =>{
 
-    reviews.findOne({imdbId:req.params.imdbId},(review,err)=>{
+    Review.findOne({imdbId:req.params.imdbId},(review,err)=>{
 
         if(!err){
 

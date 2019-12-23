@@ -76,19 +76,21 @@ describe("Reviews Api", ()=>{
 
             ];
 
-            dbRemove = jest.spyOn(Review,"remove");
-            dbRemove.mockImplementation((imdbId,c)=>{
-                c(null,reviews);
-            });
-
+          
 
         });
 
         //.delete(nombre de la review que quieres borrar a través del api path)
         it("Should delete the review if the id exists", () =>{
+
+            dbfindOneAndRemove = jest.spyOn(Review,"findOneAndRemove");
+            dbfindOneAndRemove.mockImplementation((imdbId,c)=>{
+                c(null,reviews);
+            });
+
             return request(server).del("/v1/reviews?imdbId="+"313").then((response)=>{
                 expect(response.statusCode).toBe(200);
-                expect(dbRemove).toHaveBeenCalled();
+                expect(dbfindOneAndRemove).toHaveBeenCalled();
 
             })
 
@@ -97,7 +99,13 @@ describe("Reviews Api", ()=>{
 
         it("Should return 400 code if the review's Id doesn't exist",() =>{
 
-            return request(server).del("/v1/reviews?imdbId="+"2220").then((response)=>{
+            dbfindOneAndRemove = jest.spyOn(Review,"findOneAndRemove");
+            dbfindOneAndRemove.mockImplementation((imdbId,c)=>{
+                c(true);
+            });
+
+
+            return request(server).del("/v1/reviews?imdbId=2220").then((response)=>{
                 expect(response.statusCode).toBe(400);
             })
 
@@ -105,7 +113,7 @@ describe("Reviews Api", ()=>{
 
         });
 
-    /*
+    
     describe("Post impression method/",()=>{
         let dbFindOne;
 
@@ -124,16 +132,16 @@ describe("Reviews Api", ()=>{
 
 
         it("Should update the impressions of a review if the review's id exists", () =>{
-            return request(server).post("/v1/reviews/imdbId:313").send(Review).then((response)=>{
+            return request(server).post("/v1/reviews/imdbId:313").then((response)=>{
                 expect(response.statusCode).toBe(201);
             });
         });
 
         it("Should give error 400 if the object as review's id is not valid", () =>{
-            return request(server).post("/v1/reviews/"+"imdbId:300").send(Review).then((response)=>{
+            return request(server).post("/v1/reviews/"+"imdbId:300").then((response)=>{
                 expect(response.statusCode).toBe(400);
             });
         });
     });
-    */
+    
 });
