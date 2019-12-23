@@ -71,13 +71,13 @@ describe("Reviews Api", ()=>{
         beforeAll(()=> {
             const reviews=[
 
-                new Review({"imdbId":'313','rating':'3','name':'Carlos','created':'15-dec-2019','impressions':'0'}),
-                new Review({"imdbId":'312','rating':'2','name':'Agustin','created':'15-dec-2019','impressions':'3'})
+                new Review({"imdbId":'313','rating':3,'name':'Carlos','created':'15-dec-2019','impressions':0}),
+                new Review({"imdbId":'312','rating':2,'name':'Agustin','created':'15-dec-2019','impressions':3})
 
             ];
 
-            dbDeleteOne = jest.spyOn(Review,"deleteOne");
-            dbDeleteOne.mockImplementation((imdbId,c)=>{
+            dbRemove = jest.spyOn(Review,"remove");
+            dbRemove.mockImplementation((imdbId,c)=>{
                 c(null,reviews);
             });
 
@@ -86,19 +86,19 @@ describe("Reviews Api", ()=>{
 
         //.delete(nombre de la review que quieres borrar a través del api path)
         it("Should delete the review if the id exists", () =>{
-            return request(server).del("/v1/reviews?imdbId=313").then((response)=>{
+            return request(server).del("/v1/reviews?imdbId="+"313").then((response)=>{
                 expect(response.statusCode).toBe(200);
-                expect(dbDeleteOne).toHaveBeenCalled();
+                expect(dbRemove).toHaveBeenCalled();
 
             })
 
         });
+        
 
         it("Should return 400 code if the review's Id doesn't exist",() =>{
 
-            return request(server).del("/v1/reviews?imdbId=300").then((response)=>{
+            return request(server).del("/v1/reviews?imdbId="+"2220").then((response)=>{
                 expect(response.statusCode).toBe(400);
-
             })
 
         })
