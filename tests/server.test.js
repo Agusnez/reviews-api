@@ -77,8 +77,8 @@ describe("Reviews Api", ()=>{
             ];
 
             dbDeleteOne = jest.spyOn(Review,"deleteOne");
-            dbDeleteOne.mockImplementation((id, callback)=>{
-                callback(null,reviews);
+            dbDeleteOne.mockImplementation((imdbId,c)=>{
+                c(null,reviews);
             });
 
 
@@ -86,7 +86,7 @@ describe("Reviews Api", ()=>{
 
         //.delete(nombre de la review que quieres borrar a través del api path)
         it("Should delete the review if the id exists", () =>{
-            return request(server).del("/v1/reviews/review/imdbId=313").then((response)=>{
+            return request(server).del("/v1/reviews?imdbId=313").then((response)=>{
                 expect(response.statusCode).toBe(200);
                 expect(dbDeleteOne).toHaveBeenCalled();
 
@@ -96,7 +96,7 @@ describe("Reviews Api", ()=>{
 
         it("Should return 400 code if the review's Id doesn't exist",() =>{
 
-            return request(server).del("/v1/reviews/imdbId:300").then((response)=>{
+            return request(server).del("/v1/reviews?imdbId=300").then((response)=>{
                 expect(response.statusCode).toBe(400);
 
             })
