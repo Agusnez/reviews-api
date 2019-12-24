@@ -4,6 +4,7 @@ const db = require('../db');
 
 describe("Reviews DB connection", () => {
     beforeAll(() => {
+        process.env.MONGO_ENV= 'testing';
         return db();
     });
 
