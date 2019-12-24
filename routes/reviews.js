@@ -148,8 +148,8 @@ router.post("/", (req,res) =>{
 
     console.log("ok");
 
-    Review.findOneAndUpdate({imdbId:queryObject.imdbId},{content:queryObject.content,rating:queryObject.rating,title:queryObject.title},{
-        new: false// we give back the new review as a result of the modifications
+    Review.findOneAndUpdate({imdbId:queryObject.imdbId},{$set:{content:queryObject.content},$set:{rating:queryObject.rating},$set:{title:queryObject.title}},{
+        new: true// we give back the new review as a result of the modifications
      }, (err)=>{
 
          if(err){

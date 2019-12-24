@@ -2,6 +2,7 @@
 require('dotenv').config()
 
 const mongoose = require("mongoose");
+mongoose.set('useFindAndModify', false);
 const DB_URL = `mongodb+srv://custom:${process.env.MONGO_PASS}@reviews-vngeb.gcp.mongodb.net/${process.env.MONGO_ENV}?retryWrites=true&w=majority`;
 
 const dbConnect = function() {
