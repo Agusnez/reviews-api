@@ -113,7 +113,7 @@ describe("Reviews Api", ()=>{
 
         });
 
-    
+    /*
     describe("Post impression method/",()=>{
         let dbFindOne;
 
@@ -143,5 +143,35 @@ describe("Reviews Api", ()=>{
             });
         });
     });
+
+    */
+    
     
 });
+
+describe(" PUT /", () =>{
+
+    beforeAll(()=> {
+        const reviews=[
+
+            new Review({"imdbId":'313','rating':3,'name':'Carlos','created':'15-dec-2019','impressions':0}),
+            new Review({"imdbId":'312','rating':2,'name':'Agustin','created':'15-dec-2019','impressions':3})
+
+        ];
+    });
+
+    it("Should modify the review which adjusts to the parameters (if the objects are valid)", () =>{
+
+        dbfindOneAndUpdate = jest.spyOn(Review,"findOneAndUpdate");
+        dbfindOneAndUpdate.mockImplementation((imdbId,Content,Rating,Title,c)=>{
+            c(null,reviews);
+        });
+
+        return request(server).put("/v1/reviews/{imdbId=313}").send({'rating':5}).then((response)=>{
+
+            expect(response.statusCode).toBe(201);
+
+        });
+
+    });
+})

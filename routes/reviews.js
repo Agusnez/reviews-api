@@ -117,7 +117,52 @@ router.post("/", (req,res) =>{
     });
  
  
- })
+ });
+
+ 
+ router.put("/", (req,res)=>{
+
+
+    var reviewId=req.params.imdbId;
+    var contentQuery = req.params.content;
+    var ratingQuery = req.params.rating;
+    var titleQuery = req.params.title;
+
+    //We dinamically build the query object based on the query params in the request
+    var queryObject = {};
+
+    queryObject['imdbId'] = reviewId;
+
+
+    if(typeof contentQuery ==='string') {
+        queryObject['content'] = contentQuery;
+    }
+
+    if(typeof ratingQuery ==='number') {
+        queryObject['rating'] = ratingQuery;
+    }
+
+    if(typeof titleQuery === 'string'){
+        queryObject['title'] = titleQuery;
+    }
+
+    console.log("ok");
+
+    Review.findOneAndUpdate({imdbId:queryObject.imdbId},{content:queryObject.content,rating:queryObject.rating,title:queryObject.title},{
+        new: true// we give back the new review as a result of the modifications
+     }, (err)=>{
+
+         if(err){
+             console.log("Review not found");
+            res.sendStatus(404);
+         }else{
+             console.log("Review updated");
+             res.sendStatus(201);
+         }
+     });
+
+
+});
 
 
 
