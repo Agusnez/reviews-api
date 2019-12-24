@@ -149,7 +149,7 @@ router.post("/", (req,res) =>{
     console.log("ok");
 
     Review.findOneAndUpdate({imdbId:queryObject.imdbId},{content:queryObject.content,rating:queryObject.rating,title:queryObject.title},{
-        new: true// we give back the new review as a result of the modifications
+        new: false// we give back the new review as a result of the modifications
      }, (err)=>{
 
          if(err){
