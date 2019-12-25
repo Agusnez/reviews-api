@@ -80,10 +80,11 @@ router.delete('/', (req, res) => {
 
     console.log("the method start");
     //Now we execute the delete operation
-    Review.findOneAndRemove({imdbId:reviewId}, (err)=>{
+    Review.findOne({imdbId:reviewId}, (err,review)=>{
         
         if(!err){ //if the imdbId exists, the review will be deleted
 
+            review.remove();
             console.log("The review has been deleted")
             return res.sendStatus(200);
 
