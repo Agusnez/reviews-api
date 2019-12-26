@@ -46,9 +46,9 @@ router.post("/", async (req,res) =>{
             let isValidReview = await reviewExists(review);
 
             if (isValueValid(value) && isValidReview) {
-
+                
                 // Check if the impression needs to be updated.
-                Impression.findOneAndUpdate(object, {review, user, value}, {upsert: true, useFindAndModify: false},  (err, impression) => {
+                Impression.findOneAndUpdate(object, {review, user, value}, {upsert: true, useFindAndModify: false}).then((err, impression) => {
 
                     if (err) {
                         res.send(500, {error: err});

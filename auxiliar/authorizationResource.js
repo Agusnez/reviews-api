@@ -10,7 +10,6 @@ class AuthorizationResource {
                 'Authorization': `Bearer ${token}`
             }
         };
-
         return rp.get(url, options);
     }
 }
