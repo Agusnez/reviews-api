@@ -18,6 +18,7 @@ var app = express();
 
 // Our own routes requirement
 var reviews = require("./routes/reviews.js");
+var impressions = require("./routes/impressions.js");
 
 const BASE_URL = '/v1';
 
@@ -26,6 +27,7 @@ app.use(bodyParser.json());
 
 // Our own routes declaration
 app.use(BASE_URL + '/reviews', reviews);
+app.use(BASE_URL + '/impressions', impressions);
 
 
 app.get('/', (req, res) => {
