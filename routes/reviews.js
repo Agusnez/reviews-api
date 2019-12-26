@@ -72,29 +72,42 @@ router.post('/', (req, res) => {
 
 
 
-router.delete('/', (req, res) => {
+router.delete('/', async (req, res) => {
    
-
     //The film's ID of the query is saved in ReviewId
-    var reviewId=req.params.imdbId;
+    var reviewId=req.body.imdbId;
+    //The token is saved
+    var authorizationToken= req.headers.authorization;
 
-    console.log("the method start");
-    //Now we execute the delete operation
-    Review.findOneAndRemove({reviewId: reviewId}, (err)=>{
-        
-        if(!err){ //if the imdbId exists, the review will be deleted
-            console.log("The review has been deleted")
-            return res.sendStatus(200);
+    let bearerToken=authorizationToken.split(' ')[1];
+    var username=await auth.getUsername(bearerToken);
 
-        }else{ //if the imdbId does not exist, an error message will be sent.
+    Review.findById({reviewId: reviewId}, (err,review)=>{
 
-            console.log("The review doesn't exist");
+        var user=review.user;
+        if(!err){ //if the id exists, the user will be verified
+            
+                if(user===username){//if the user is validated, the review will be deleted
+                    
+                    Review.deleteOne({imdbId: review.imdbId}, ()=>{
+
+                            console.log("The review has been deleted")
+                            return res.sendStatus(200);
+                    });
+
+                }else{ //if the user is not allowed to delete the review, an error message will appear
+                        console.log("Don't have access to that review");
+                        return res.sendStatus(401);
+                }
+                
+         }else{//if the imdbId does not exist, an error message will be sent.
+            console.log("Invalid input,object invalid");
             return res.sendStatus(400);
         }
-
-     });
-
+    });
 });
+   
+
 
 //creates an impression
 router.post("/", (req,res) =>{
@@ -122,44 +135,41 @@ router.post("/", (req,res) =>{
  router.put("/", (req,res)=>{
 
 
-    var reviewId=req.params.imdbId;
-    var contentQuery = req.params.content;
-    var ratingQuery = req.params.rating;
-    var titleQuery = req.params.title;
-
-    //We dinamically build the query object based on the query params in the request
-    var queryObject = {};
-
-    queryObject['imdbId'] = reviewId;
+    var reviewId=req.body.reviewId;
 
 
-    if(typeof contentQuery ==='string') {
-        queryObject['content'] = contentQuery;
-    }
 
-    if(typeof ratingQuery ==='number') {
-        queryObject['rating'] = ratingQuery;
-    }
+    Review.findById(reviewId, (err,review)=>{
 
-    if(typeof titleQuery === 'string'){
-        queryObject['title'] = titleQuery;
-    }
+        //var user=review.user;
+        if(!err){ //if the id exists, the user will be verified
+            //first we get the id user who made the review
+            var user= review.user;
 
-    console.log("ok");
+            //that user will be compared with the user of the token who wants to modify the review
+            var authorizationToken= req.headers.authorization;
+            let bearerToken=authorizationToken.split(' ')[1];
 
-    Review.findOneAndUpdate({imdbId:queryObject.imdbId},{$set:{content:queryObject.content},$set:{rating:queryObject.rating},$set:{title:queryObject.title}},{
-        new: true// we give back the new review as a result of the modifications
-     }, (err)=>{
+                if(user===username){//if the user is validated, the review will be deleted
 
-         if(err){
-             console.log("Review not found");
-            res.sendStatus(404);
-         }else{
-             console.log("Review updated");
-             res.sendStatus(201);
-         }
-     });
+                    //now that we know the review imdbId, we can filter it, and the option $set:req.body allows us to update 
+                    //all the fields that are present in the body of the request
+                    Review.updateOne({imdbId: review.imdbId},{ $set:req.body },{new:true},()=>{
 
+                            console.log("The review has been updated")
+                            return res.sendStatus(200);
+                    });
+
+                }else{ //if the user is not allowed to delete the review, an error message will appear
+                        console.log("Don't have access to that review");
+                        return res.sendStatus(401);
+                }
+                
+         }else{//if the imdbId does not exist, an error message will be sent.
+            console.log("Invalid input,object invalid");
+            return res.sendStatus(400);
+        }
+    });
 
 });
 
