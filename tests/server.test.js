@@ -65,38 +65,62 @@ describe("Reviews API", () => {
 
 describe("Reviews Api", ()=>{
 
-    describe(" DELETE /", () =>{
+    describe(" DELETE / impressions: Authenticated and Review ID found", () =>{
         let dbDeleteOne;
 
-        beforeAll(()=> {
-            const reviews=[
+        beforeAll(() => {
 
-                new Review({"imdbId":'313','rating':3,'name':'Carlos','created':'15-dec-2019','impressions':0}),
-                new Review({"imdbId":'312','rating':2,'name':'Agustin','created':'15-dec-2019','impressions':3})
+            const mockStatic = jest.fn();
+            mockStatic.mockReturnValue(
+                Promise.resolve({
+                    mail: "agusnez@example.com",
+                    login: "agusnez"
+                })
+            );
+        })
 
-            ];
+        Auth.getUsername = mockStatic.bind(Auth);
 
-          
+        dbfindById=jest.spyOn(Review,"findById");
+        dbdeleteOne=jest.spyOn(Review,"deleteOne");
 
+        dbfindById.mockImplementation((id)=>{
+            return Promise.resolve(new Review ({
+                "impressions": {
+                    "likes": 2,
+                    "dislikes": 0,
+                    "spam": 0
+                  },
+                  "imdbId": "tt0903747",
+                  "rating": 5,
+                  "user": "carcap",
+                  "created": "2019-10-10T19:09:36.884Z",
+                  "id": "5e01f78dfeb6a107e098b582"
+                }));
+
+            });
         });
+
+        dbdeleteOne.mockImplementation((imdbId)=>{
+            return Promise.resolve(null,null);
+        });
+
+
 
         //.delete(nombre de la review que quieres borrar a través del api path)
         it("Should delete the review if the id exists", () =>{
 
-            dbfindOneAndRemove = jest.spyOn(Review,"findOneAndRemove");
-            dbfindOneAndRemove.mockImplementation((imdbId,c)=>{
-                c(null,reviews);
-            });
 
-            return request(server).del("/v1/reviews?imdbId="+"313").then((response)=>{
+            return request(server).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").
+            then((response)=>{
                 expect(response.statusCode).toBe(200);
-                expect(dbfindOneAndRemove).toHaveBeenCalled();
+                expect(dbdeleteOne).toHaveBeenCalled();
 
             })
 
         });
-        
-
+    });
+        /*
         it("Should return 400 code if the review's Id doesn't exist",() =>{
 
             dbfindOneAndRemove = jest.spyOn(Review,"findOneAndRemove");
@@ -147,8 +171,7 @@ describe("Reviews Api", ()=>{
     */
     
     
-});
-
+/*
 describe(" PUT /", () =>{
 
     beforeAll(()=> {
@@ -175,3 +198,4 @@ describe(" PUT /", () =>{
 
     });
 })
+*/
