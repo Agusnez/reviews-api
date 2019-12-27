@@ -16,17 +16,14 @@ const reviewSchema = new mongoose.Schema({
 
 reviewSchema.methods.cleanup = function() {
     return {
+        id: this._id,
         imdbId: this.imdbId, 
         rating: this.rating,
         user: this.user,
         title: this.title,
         content: this.content,
         created: this.created,
-        impressions: {
-            likes: this.likes,
-            dislikes: this.dislikes,
-            spam: this.spam
-        }
+        impressions: this.impressions
     };
 };
 
