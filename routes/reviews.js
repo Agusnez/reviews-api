@@ -112,7 +112,7 @@ router.delete('/', async (req, res) => {
 
         if (user == username.login) {//if the user is validated, the review will be deleted
 
-            Review.deleteOne({ imdbId: review.imdbId }).then(() => {
+            Review.deleteOne({id: review.id }).then(() => {
 
                 console.log("The review has been deleted")
                 return res.sendStatus(200);
@@ -122,7 +122,7 @@ router.delete('/', async (req, res) => {
             console.log("Don't have access to that review");
             return res.sendStatus(401);
         }
-    }).catch((err) => {//if the imdbId does not exist, an error message will be sent.
+    }).catch((err) => {//if the id does not exist, an error message will be sent.
         return res.status(400).send("Invalid input,object invalid");
     });
 });
@@ -138,20 +138,19 @@ router.put("/", (req, res) => {
     var authorizationToken = req.headers.authorization;
     let bearerToken = authorizationToken.split(' ')[1];
 
-    Review.findById(reviewId).then((err, review) => {
+    Review.findById(reviewId).then((review) => {
 
-        //var user=review.user;
-        if (!err) { //if the id exists, the user will be verified
+    //if the id exists, the user will be verified
             //first we get the id user who made the review
             var user = review.user;
 
             //that user will be compared with the user of the token who wants to modify the review
 
-            if (user === username) {//if the user is validated, the review will be deleted
+            if (user === user.login) {//if the user is validated, the review will be deleted
 
                 //now that we know the review imdbId, we can filter it, and the option $set:req.body allows us to update 
                 //all the fields that are present in the body of the request
-                Review.updateOne({ imdbId: review.imdbId }, { $set: req.body }).then(() => {
+                Review.updateOne({ id: review.id }, { $set: req.body }).then(() => {
 
                     console.log("The review has been updated")
                     return res.sendStatus(200);
@@ -160,13 +159,9 @@ router.put("/", (req, res) => {
             } else { //if the user is not allowed to delete the review, an error message will appear
                 console.log("Don't have access to that review");
                 return res.sendStatus(401);
-            }
-
-        } else {//if the imdbId does not exist, an error message will be sent.
-            console.log("Invalid input,object invalid");
-            return res.sendStatus(400);
-        }
-    });
+            }        
+    }).catch((err) => {//if the id does not exist, an error message will be sent.
+        return res.status(400).send("Invalid input,object invalid");
 
 });
 

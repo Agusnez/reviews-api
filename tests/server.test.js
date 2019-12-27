@@ -261,7 +261,7 @@ describe("Reviews Api Carlos", ()=>{
 
             });
 
-        dbdeleteOne.mockImplementation((imdbId)=>{
+        dbdeleteOne.mockImplementation((id)=>{
             return Promise.resolve(null,{ n: 1, ok: 1, deleteCount: 1});
         });
     });
@@ -278,9 +278,8 @@ describe("Reviews Api Carlos", ()=>{
            
         });
     })
-  //borrar aquí
 })
-/*
+
     describe(" DELETE / reviews: Review ID is an invalid object", () =>{
 
         beforeAll(() => {
@@ -300,12 +299,12 @@ describe("Reviews Api Carlos", ()=>{
         dbdeleteOne=jest.spyOn(Review,"deleteOne");
 
         dbfindById.mockImplementation((id)=>{
-            return Promise.resolve(,null);
+            return Promise.resolve(null);
 
             });
        
 
-        dbdeleteOne.mockImplementation((imdbId)=>{
+        dbdeleteOne.mockImplementation((id)=>{
             return Promise.resolve(null,null);
             });
     
@@ -342,7 +341,7 @@ describe("Reviews Api Carlos", ()=>{
             dbdeleteOne=jest.spyOn(Review,"deleteOne");
     
             dbfindById.mockImplementation((id)=>{
-                return Promise.resolve(null, new Review ({
+                return Promise.resolve( new Review ({
                     "impressions": {
                         "likes": 2,
                         "dislikes": 0,
@@ -359,7 +358,7 @@ describe("Reviews Api Carlos", ()=>{
         
     
             dbdeleteOne.mockImplementation((imdbId)=>{
-                return Promise.resolve(null,null);
+                return Promise.resolve(null,{ n: 1, ok: 1, deleteCount: 1});
             });
         });
     
