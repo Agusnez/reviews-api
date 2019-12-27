@@ -65,8 +65,7 @@ describe("Reviews API", () => {
 
 describe("Reviews Api", ()=>{
 
-    describe(" DELETE / impressions: Authenticated and Review ID found", () =>{
-        let dbDeleteOne;
+    describe(" DELETE / reviews: Authenticated and Review ID found", () =>{
 
         beforeAll(() => {
 
@@ -119,7 +118,110 @@ describe("Reviews Api", ()=>{
             })
 
         });
+  
+    describe(" DELETE / reviews: Review ID is an invalid object", () =>{
+
+        beforeAll(() => {
+
+            const mockStatic = jest.fn();
+            mockStatic.mockReturnValue(
+                Promise.resolve({
+                    mail: "agusnez@example.com",
+                    login: "agusnez"
+                })
+            );
+        })
+
+        Auth.getUsername = mockStatic.bind(Auth);
+
+        dbfindById=jest.spyOn(Review,"findById");
+        dbdeleteOne=jest.spyOn(Review,"deleteOne");
+
+        dbfindById.mockImplementation((id)=>{
+            return Promise.resolve(new Review ({
+                "impressions": {
+                    "likes": 2,
+                    "dislikes": 0,
+                    "spam": 0
+                  },
+                  "imdbId": "tt0903747",
+                  "rating": 5,
+                  "user": "carcap",
+                  "created": "2019-10-10T19:09:36.884Z",
+                  "id": "5e01f78dfeb6a107e098b582"
+                }));
+
+            });
+        });
+
+        dbdeleteOne.mockImplementation((imdbId)=>{
+            return Promise.resolve(null,null);
+        });
+
+
+        //.delete(nombre de la review que quieres borrar a través del api path)
+        it("Should the id be an invalid object, an erro message appears", () =>{
+
+            return request(server).del("/v1/reviews").send({id:"xdg9844 nn"}). then((response)=>{
+                expect(response.statusCode).toBe(400);
+
+            });
+
+        });
+
+
+        describe(" DELETE / reviews: Review ID exists but the user is not authorised", () =>{
+
+            beforeAll(() => {
+    
+                const mockStatic = jest.fn();
+                mockStatic.mockReturnValue(
+                    Promise.resolve({
+                        mail: "agusnez@example.com",
+                        login: "agusnez"
+                    })
+                );
+            })
+    
+            Auth.getUsername = mockStatic.bind(Auth);
+    
+            dbfindById=jest.spyOn(Review,"findById");
+            dbdeleteOne=jest.spyOn(Review,"deleteOne");
+    
+            dbfindById.mockImplementation((id)=>{
+                return Promise.resolve(new Review ({
+                    "impressions": {
+                        "likes": 2,
+                        "dislikes": 0,
+                        "spam": 0
+                      },
+                      "imdbId": "tt0903747",
+                      "rating": 5,
+                      "user": "carcap",
+                      "created": "2019-10-10T19:09:36.884Z",
+                      "id": "5e01f78dfeb6a107e098b582"
+                    }));
+    
+                });
+            });
+    
+            dbdeleteOne.mockImplementation((imdbId)=>{
+                return Promise.resolve(null,null);
+            });
+    
+    
+            //.delete(nombre de la review que quieres borrar a través del api path)
+            it("Should the user not to be authorised, an error message appears", () =>{
+    
+                return request(server).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).then((response)=>{
+                    expect(response.statusCode).toBe(401);
+    
+                });
+    
+            });
+
     });
+
         /*
         it("Should return 400 code if the review's Id doesn't exist",() =>{
 
