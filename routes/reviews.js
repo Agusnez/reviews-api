@@ -131,12 +131,13 @@ router.delete('/', async (req, res) => {
 
 
 
-router.put("/", (req, res) => {
-
+router.put("/", async (req, res) => {
 
     var reviewId = req.body.id;
     var authorizationToken = req.headers.authorization;
     let bearerToken = authorizationToken.split(' ')[1];
+    var username = await auth.getUsername(bearerToken);
+
 
     Review.findById(reviewId).then((review) => {
 
@@ -146,22 +147,20 @@ router.put("/", (req, res) => {
 
             //that user will be compared with the user of the token who wants to modify the review
 
-            if (user === user.login) {//if the user is validated, the review will be deleted
+            if (user == username.login) {//if the user is validated, the review will be deleted
 
                 //now that we know the review imdbId, we can filter it, and the option $set:req.body allows us to update 
                 //all the fields that are present in the body of the request
                 Review.updateOne({ id: review.id }, { $set: req.body }).then(() => {
-
-                    console.log("The review has been updated")
-                    return res.sendStatus(200);
+                    return res.status(200).send("The review has been updated");
                 });
 
             } else { //if the user is not allowed to delete the review, an error message will appear
-                console.log("Don't have access to that review");
-                return res.sendStatus(401);
+                return res.status(401).send("Don't have access to that review");
             }        
     }).catch((err) => {//if the id does not exist, an error message will be sent.
         return res.status(400).send("Invalid input,object invalid");
+    });
 
 });
 

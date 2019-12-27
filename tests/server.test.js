@@ -278,7 +278,7 @@ describe("Reviews Api Carlos", ()=>{
            
         });
     })
-})
+
 
     describe(" DELETE / reviews: Review ID is an invalid object", () =>{
 
@@ -362,7 +362,6 @@ describe("Reviews Api Carlos", ()=>{
             });
         });
     
-            //.delete(nombre de la review que quieres borrar a través del api path)
             it("Should the user not to be authorised, an error message appears", () =>{
     
                 return request(app).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").then((response)=>{
@@ -374,16 +373,16 @@ describe("Reviews Api Carlos", ()=>{
         })
 
 
-/*
-describe(" PUT /", () =>{
+
+describe(" PUT /reviews: Review ID exists and the user is authorised ", () =>{
 
     beforeAll(() => {
 
             const mockStatic = jest.fn();
             mockStatic.mockReturnValue(
                 Promise.resolve({
-                    mail: "agusnez@example.com",
-                    login: "agusnez"
+                    mail: "carcap@example.com",
+                    login: "carcap"
                 })
             );
 
@@ -409,34 +408,124 @@ describe(" PUT /", () =>{
             });
         
 
-        dbupdateOne.mockImplementation((imdbId)=>{
-            return Promise.resolve(new Review ({
-                "impressions": {
-                    "likes": 2,
-                    "dislikes": 0,
-                    "spam": 0
-                  },
-                  "imdbId": "tt0903747",
-                  "rating": 4.5,
-                  "user": "carcap",
-                  "created": "2019-10-10T19:09:36.884Z",
-                  "id": "5e01f78dfeb6a107e098b582"
-                }));
+        dbupdateOne.mockImplementation((id,body)=>{
+            //updateone gives us two values: number of documents matched and
+            //number of documents updated, in this case both are 1:
+            return Promise.resolve(1,1);
         });
     });
 
     it("Should the review be modified, if the id is valid and the user is authenticated)", () =>{
 
+        return request(app).put("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582",body:{rating:4.5}}).set("Authorization", " Bearer eyxxx").then((response)=>{
 
-        return request(app).put("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582", rating:4.5}).set("Authorization", " Bearer eyxxx").then((response)=>{
-
-            expect(response.statusCode).toBe(201);
+            expect(response.statusCode).toBe(200);
 
         });
 
     });
-    */
+})
 
+
+describe(" PUT /reviews: Review ID doesn't exist", () =>{
+
+        beforeAll(() => {
+    
+                const mockStatic = jest.fn();
+                mockStatic.mockReturnValue(
+                    Promise.resolve({
+                        mail: "carcap@example.com",
+                        login: "carcap"
+                    })
+                );
+    
+            Auth.getUsername = mockStatic.bind(Auth);
+    
+            dbfindById=jest.spyOn(Review,"findById");
+            dbupdateOne=jest.spyOn(Review,"updateOne");
+    
+            dbfindById.mockImplementation((id)=>{
+                //since the id is invalid, the method findById will give back nothing 
+                //therefore it will be an error (promise=null)
+                return Promise.resolve(null);
+    
+                });
+            
+    
+            dbupdateOne.mockImplementation((id,body)=>{
+                //updateone gives us two values: number of documents matched and
+                //number of documents updated, in this case both are 0:
+                return Promise.resolve(0,0);
+            });
+        });
+    
+        it(("Should the object be invalid, an error message will be sent"), () =>{
+    
+            return request(app).put("/v1/reviews").send({id:"xfkm j nmhd r",body:{rating:4.5}}).set("Authorization", " Bearer eyxxx").then((response)=>{
+    
+                expect(response.statusCode).toBe(400);
+    
+            });
+        
+        })
+    })
+
+
+    describe(" PUT /reviews: Review ID exists but the user is not authorised", () =>{
+
+        beforeAll(() => {
+    
+                const mockStatic = jest.fn();
+                mockStatic.mockReturnValue(
+                    Promise.resolve({
+                        mail: "agusnez@example.com",
+                        login: "agusnez"
+                    })
+                );
+    
+            Auth.getUsername = mockStatic.bind(Auth);
+    
+            dbfindById=jest.spyOn(Review,"findById");
+            dbupdateOne=jest.spyOn(Review,"updateOne");
+    
+            dbfindById.mockImplementation((id)=>{
+                //since the id is invalid, the method findById will give back nothing 
+                //therefore it will be an error (promise=null)
+                return Promise.resolve(new Review ({
+                    "impressions": {
+                        "likes": 2,
+                        "dislikes": 0,
+                        "spam": 0
+                      },
+                      "imdbId": "tt0903747",
+                      "rating": 5,
+                      "user": "carcap",
+                      "created": "2019-10-10T19:09:36.884Z",
+                      "id": "5e01f78dfeb6a107e098b582"
+                    }));
+    
+                });
+            
+    
+            dbupdateOne.mockImplementation((id,body)=>{
+                //updateone gives us two values: number of documents matched and
+                //number of documents updated, in this case both are 0:
+                return Promise.resolve(0,0);
+            });
+        });
+    
+        it(("Should the user not be authorised, an error message will be sent"), () =>{
+    
+            return request(app).put("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582",body:{rating:4.5}}).set("Authorization", " Bearer eyxxx").then((response)=>{
+    
+                expect(response.statusCode).toBe(401);
+    
+            });
+        
+        })
+
+    })
+})
 
 
     
