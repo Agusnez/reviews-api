@@ -224,3 +224,139 @@ describe("Impressions API", () => {
 
     });
 });
+
+describe("Get average rating api",() =>{
+    describe("The input is valid, and the average rating is calculated",()=>{
+
+        beforeAll(() => {
+            const reviews = [
+                new Review({
+                    "impressions": {
+                    "likes": 0,
+                    "dislikes": 0,
+                    "spam": 0
+                    },
+                    "imdbId": "tt0903747",
+                    "rating": 4,
+                    "user": "agusnez",
+                    "created": "2019-12-10T19:09:36.884Z"
+                }),
+                new Review({
+                    "impressions": {
+                        "likes": 2,
+                        "dislikes": 0,
+                        "spam": 0
+                    },
+                    "imdbId": "tt0903747",
+                    "rating": 5,
+                    "user": "carcap",
+                    "created": "2019-10-10T19:09:36.884Z"
+                    }),
+
+                    new Review({
+                        "impressions": {
+                        "likes": 3,
+                        "dislikes": 0,
+                        "spam": 0
+                        },
+                        "imdbId": "tt0903748",
+                        "rating": 2,
+                        "user": "carcap",
+                        "created": "2019-11-12T20:19:36.884Z"
+                    })
+            ];
+
+
+            dbfind=jest.spyOn(Review,"find");
+
+            //we will test that find only gives back the reviews which imdbIds are "tt0903747". 
+            //Those are the first and the second reviews in the array:
+
+            dbfind.mockImplementation((imdbId)=>{
+                return reviews[1,2];
+            });
+
+
+        })
+
+        it("The input is valid and the average rating is calculated",()=>{
+
+            request(app).getAverageRating("/v1/reviews").send("tt0903747").then((response)=>{
+                expect(response.statusCode).toBe(200);
+            })
+
+
+        });
+
+
+        describe("Should the input be invalid, an error message will be sent",()=>{
+
+            beforeAll(() => {
+                const reviews = [
+                    new Review({
+                        "impressions": {
+                        "likes": 0,
+                        "dislikes": 0,
+                        "spam": 0
+                        },
+                        "imdbId": "tt0903747",
+                        "rating": 4,
+                        "user": "agusnez",
+                        "created": "2019-12-10T19:09:36.884Z"
+                    }),
+                    new Review({
+                        "impressions": {
+                            "likes": 2,
+                            "dislikes": 0,
+                            "spam": 0
+                        },
+                        "imdbId": "tt0903747",
+                        "rating": 5,
+                        "user": "carcap",
+                        "created": "2019-10-10T19:09:36.884Z"
+                        }),
+    
+                        new Review({
+                            "impressions": {
+                            "likes": 3,
+                            "dislikes": 0,
+                            "spam": 0
+                            },
+                            "imdbId": "tt0903748",
+                            "rating": 2,
+                            "user": "carcap",
+                            "created": "2019-11-12T20:19:36.884Z"
+                        })
+                ];
+    
+    
+                dbfind=jest.spyOn(Review,"find");
+    
+                //we will test that find gives back an error in the case of an invalid input
+                //Therefore the method returns null
+    
+                dbfind.mockImplementation((imdbId)=>{
+                    return null;
+                });
+    
+    
+            })
+    
+            it("The input is invalid and an error message should appear",()=>{
+    
+                request(app).getAverageRating("/v1/reviews").send("xmjhnyuengg9897738").then((response)=>{
+                    expect(response.statusCode).toBe(400);
+                })
+    
+            });
+      });
+
+    })
+
+})
+
+
+
+
+
+
