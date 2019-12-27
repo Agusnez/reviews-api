@@ -235,8 +235,8 @@ describe("Reviews Api Carlos", ()=>{
             const mockStatic = jest.fn();
             mockStatic.mockReturnValue(
                 Promise.resolve({
-                    mail: "agusnez@example.com",
-                    login: "agusnez"
+                    mail: "carcap@example.com",
+                    login: "carcap"
                 })
             );
 
@@ -246,7 +246,7 @@ describe("Reviews Api Carlos", ()=>{
         dbdeleteOne=jest.spyOn(Review,"deleteOne");
 
         dbfindById.mockImplementation((id)=>{
-            return Promise.resolve(null, new Review ({
+            return Promise.resolve(new Review ({
                 "impressions": {
                     "likes": 2,
                     "dislikes": 0,
@@ -271,7 +271,7 @@ describe("Reviews Api Carlos", ()=>{
 
             return request(app).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").then((response) =>{
                     expect(response.statusCode).toBe(200);
-                    expect(dbdeleteOne).resolves.toHaveBeenCalled();
+                    expect(dbdeleteOne).toHaveBeenCalled();
                 });
              
            
