@@ -106,14 +106,15 @@ router.delete('/', async (req, res) => {
     var username=await auth.getUsername(bearerToken);
     
 
-    Review.findById({reviewId: reviewId}, (err,review)=>{
+    Review.findById({id:reviewId}).then( (err,review)=>{
+        console.log(review);
 
         var user=review.user;
         if(!err){ //if the id exists, the user will be verified
             
                 if(user===username){//if the user is validated, the review will be deleted
                     
-                    Review.deleteOne({imdbId: review.imdbId}, ()=>{
+                    Review.deleteOne({imdbId: review.imdbId}).then(()=>{
 
                             console.log("The review has been deleted")
                             return res.sendStatus(200);
@@ -142,7 +143,7 @@ router.delete('/', async (req, res) => {
     var authorizationToken= req.headers.authorization;
     let bearerToken=authorizationToken.split(' ')[1];
 
-    Review.findById(reviewId, (err,review)=>{
+    Review.findById(reviewId).then((err,review)=>{
 
         //var user=review.user;
         if(!err){ //if the id exists, the user will be verified
@@ -155,7 +156,7 @@ router.delete('/', async (req, res) => {
 
                     //now that we know the review imdbId, we can filter it, and the option $set:req.body allows us to update 
                     //all the fields that are present in the body of the request
-                    Review.updateOne({imdbId: review.imdbId},{ $set:req.body },{new:true},()=>{
+                    Review.updateOne({imdbId: review.imdbId},{ $set:req.body} ).then(()=>{
 
                             console.log("The review has been updated")
                             return res.sendStatus(200);
@@ -173,6 +174,9 @@ router.delete('/', async (req, res) => {
     });
 
 });
+
+
+router.getAverageRating
 
 
 

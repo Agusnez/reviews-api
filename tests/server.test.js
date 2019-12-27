@@ -246,7 +246,7 @@ describe("Reviews Api Carlos", ()=>{
         dbdeleteOne=jest.spyOn(Review,"deleteOne");
 
         dbfindById.mockImplementation((id)=>{
-            return Promise.resolve(new Review ({
+            return Promise.resolve(null, new Review ({
                 "impressions": {
                     "likes": 2,
                     "dislikes": 0,
@@ -260,27 +260,27 @@ describe("Reviews Api Carlos", ()=>{
                 }));
 
             });
-        
 
         dbdeleteOne.mockImplementation((imdbId)=>{
-            return Promise.resolve(null,null);
+            return Promise.resolve(null,{ n: 1, ok: 1, deleteCount: 1});
         });
     });
 
 
-        //.delete(nombre de la review que quieres borrar a través del api path)
-        it("Should delete the review if the id exists", () =>{
+        it("Should delete the review if the id exists", ()  => {
 
-
-            return request(app).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").
-            then((response)=>{
-                expect(response.statusCode).toBe(200);
-                expect(dbdeleteOne).toHaveBeenCalled();
-            })
-
+            return request(app).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").then((response) =>{
+                    expect(response.statusCode).toBe(200);
+                    expect(dbdeleteOne).resolves.toHaveBeenCalled();
+                });
+             
+           
+           
         });
     })
-  
+  //borrar aquí
+})
+/*
     describe(" DELETE / reviews: Review ID is an invalid object", () =>{
 
         beforeAll(() => {
@@ -300,18 +300,7 @@ describe("Reviews Api Carlos", ()=>{
         dbdeleteOne=jest.spyOn(Review,"deleteOne");
 
         dbfindById.mockImplementation((id)=>{
-            return Promise.resolve(new Review ({
-                "impressions": {
-                    "likes": 2,
-                    "dislikes": 0,
-                    "spam": 0
-                  },
-                  "imdbId": "tt0903747",
-                  "rating": 5,
-                  "user": "carcap",
-                  "created": "2019-10-10T19:09:36.884Z",
-                  "id": "5e01f78dfeb6a107e098b582"
-                }));
+            return Promise.resolve(,null);
 
             });
        
@@ -353,7 +342,7 @@ describe("Reviews Api Carlos", ()=>{
             dbdeleteOne=jest.spyOn(Review,"deleteOne");
     
             dbfindById.mockImplementation((id)=>{
-                return Promise.resolve(new Review ({
+                return Promise.resolve(null, new Review ({
                     "impressions": {
                         "likes": 2,
                         "dislikes": 0,
@@ -385,35 +374,71 @@ describe("Reviews Api Carlos", ()=>{
             });
         })
 
-    });
 
-    /*
+/*
 describe(" PUT /", () =>{
 
-    beforeAll(()=> {
-        const reviews=[
+    beforeAll(() => {
 
-            new Review({"imdbId":'313','rating':3,'name':'Carlos','created':'15-dec-2019','impressions':0}),
-            new Review({"imdbId":'312','rating':2,'name':'Agustin','created':'15-dec-2019','impressions':3})
+            const mockStatic = jest.fn();
+            mockStatic.mockReturnValue(
+                Promise.resolve({
+                    mail: "agusnez@example.com",
+                    login: "agusnez"
+                })
+            );
 
-        ];
+        Auth.getUsername = mockStatic.bind(Auth);
+
+        dbfindById=jest.spyOn(Review,"findById");
+        dbupdateOne=jest.spyOn(Review,"updateOne");
+
+        dbfindById.mockImplementation((id)=>{
+            return Promise.resolve(new Review ({
+                "impressions": {
+                    "likes": 2,
+                    "dislikes": 0,
+                    "spam": 0
+                  },
+                  "imdbId": "tt0903747",
+                  "rating": 5,
+                  "user": "carcap",
+                  "created": "2019-10-10T19:09:36.884Z",
+                  "id": "5e01f78dfeb6a107e098b582"
+                }));
+
+            });
+        
+
+        dbupdateOne.mockImplementation((imdbId)=>{
+            return Promise.resolve(new Review ({
+                "impressions": {
+                    "likes": 2,
+                    "dislikes": 0,
+                    "spam": 0
+                  },
+                  "imdbId": "tt0903747",
+                  "rating": 4.5,
+                  "user": "carcap",
+                  "created": "2019-10-10T19:09:36.884Z",
+                  "id": "5e01f78dfeb6a107e098b582"
+                }));
+        });
     });
 
-    it("Should modify the review which adjusts to the parameters (if the objects are valid)", () =>{
+    it("Should the review be modified, if the id is valid and the user is authenticated)", () =>{
 
-        dbfindOneAndUpdate = jest.spyOn(Review,"findOneAndUpdate");
-        dbfindOneAndUpdate.mockImplementation((imdbId,Content,Rating,Title,c)=>{
-            c(null,reviews);
-        });
 
-        return request(server).put("/v1/reviews/{imdbId=313}").send({'rating':5}).then((response)=>{
+        return request(app).put("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582", rating:4.5}).set("Authorization", " Bearer eyxxx").then((response)=>{
 
             expect(response.statusCode).toBe(201);
 
         });
 
     });
-})
-}*/
+    */
+
+
+
     
 
