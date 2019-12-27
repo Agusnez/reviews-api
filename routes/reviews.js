@@ -98,12 +98,13 @@ router.post('/', (req, res) => {
 router.delete('/', async (req, res) => {
    
     //The film's ID of the query is saved in ReviewId
-    var reviewId=req.body.imdbId;
-    //The token is saved
-    var authorizationToken= req.headers.authorization;
+    var reviewId=req.body.id;
 
-    let bearerToken=authorizationToken.split(' ')[1];
+    //The token is saved
+    var authorizationToken = req.headers.authorization;
+    let bearerToken=authorizationToken.split(" ")[1];
     var username=await auth.getUsername(bearerToken);
+    
 
     Review.findById({reviewId: reviewId}, (err,review)=>{
 
@@ -137,9 +138,9 @@ router.delete('/', async (req, res) => {
  router.put("/", (req,res)=>{
 
 
-    var reviewId=req.body.reviewId;
-
-
+    var reviewId=req.body.id;
+    var authorizationToken= req.headers.authorization;
+    let bearerToken=authorizationToken.split(' ')[1];
 
     Review.findById(reviewId, (err,review)=>{
 
@@ -149,8 +150,6 @@ router.delete('/', async (req, res) => {
             var user= review.user;
 
             //that user will be compared with the user of the token who wants to modify the review
-            var authorizationToken= req.headers.authorization;
-            let bearerToken=authorizationToken.split(' ')[1];
 
                 if(user===username){//if the user is validated, the review will be deleted
 

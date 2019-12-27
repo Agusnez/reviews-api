@@ -8,7 +8,7 @@ const Auth = require('../auxiliar/authorizationResource');
 
 
 describe("Hello world test", () => {
-    it("Sould return 200 OK", () => {
+    it("Should return 200 OK", () => {
         return request(app).get("/").then((response) => {
             expect(response.status).toBe(200);
         })
@@ -226,7 +226,7 @@ describe("Impressions API", () => {
     });
 });
 
-describe("Reviews Api", ()=>{
+describe("Reviews Api Carlos", ()=>{
 
     describe(" DELETE / reviews: Authenticated and Review ID found", () =>{
 
@@ -239,7 +239,6 @@ describe("Reviews Api", ()=>{
                     login: "agusnez"
                 })
             );
-        })
 
         Auth.getUsername = mockStatic.bind(Auth);
 
@@ -261,26 +260,26 @@ describe("Reviews Api", ()=>{
                 }));
 
             });
-        });
+        
 
         dbdeleteOne.mockImplementation((imdbId)=>{
             return Promise.resolve(null,null);
         });
-
+    });
 
 
         //.delete(nombre de la review que quieres borrar a través del api path)
         it("Should delete the review if the id exists", () =>{
 
 
-            return request(server).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").
+            return request(app).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").
             then((response)=>{
                 expect(response.statusCode).toBe(200);
                 expect(dbdeleteOne).toHaveBeenCalled();
-
             })
 
         });
+    })
   
     describe(" DELETE / reviews: Review ID is an invalid object", () =>{
 
@@ -293,7 +292,7 @@ describe("Reviews Api", ()=>{
                     login: "agusnez"
                 })
             );
-        })
+       
 
         Auth.getUsername = mockStatic.bind(Auth);
 
@@ -315,25 +314,27 @@ describe("Reviews Api", ()=>{
                 }));
 
             });
-        });
+       
 
         dbdeleteOne.mockImplementation((imdbId)=>{
             return Promise.resolve(null,null);
+            });
+    
         });
 
-
         //.delete(nombre de la review que quieres borrar a través del api path)
-        it("Should the id be an invalid object, an erro message appears", () =>{
+        it("Should the id be an invalid object, an error message appears", () =>{
 
-            return request(server).del("/v1/reviews").send({id:"xdg9844 nn"}). then((response)=>{
+            return request(app).del("/v1/reviews").send({id:"xdg9844 nn"}).set("Authorization", " Bearer eyxxx").then((response)=>{
                 expect(response.statusCode).toBe(400);
 
             });
 
         });
+    })
 
 
-        describe(" DELETE / reviews: Review ID exists but the user is not authorised", () =>{
+    describe(" DELETE / reviews: Review ID exists but the user is not authorised", () =>{
 
             beforeAll(() => {
     
@@ -344,7 +345,7 @@ describe("Reviews Api", ()=>{
                         login: "agusnez"
                     })
                 );
-            })
+            
     
             Auth.getUsername = mockStatic.bind(Auth);
     
@@ -366,29 +367,27 @@ describe("Reviews Api", ()=>{
                     }));
     
                 });
-            });
+        
     
             dbdeleteOne.mockImplementation((imdbId)=>{
                 return Promise.resolve(null,null);
             });
-    
+        });
     
             //.delete(nombre de la review que quieres borrar a través del api path)
             it("Should the user not to be authorised, an error message appears", () =>{
     
-                return request(server).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).then((response)=>{
+                return request(app).del("/v1/reviews").send({id:"5e01f78dfeb6a107e098b582"}).set("Authorization", " Bearer eyxxx").then((response)=>{
                     expect(response.statusCode).toBe(401);
     
                 });
     
             });
+        })
 
     });
 
-
-    
-    
-/*
+    /*
 describe(" PUT /", () =>{
 
     beforeAll(()=> {
@@ -415,4 +414,6 @@ describe(" PUT /", () =>{
 
     });
 })
-*/
+}*/
+    
+
