@@ -106,13 +106,13 @@ router.delete('/', async (req, res) => {
     var username = await auth.getUsername(bearerToken);
 
 
-    Review.findById({ id: reviewId }).then((review) => {
+    Review.findById(reviewId).then((review) => {
         var user = review.user;
         //if the id exists, the user will be verified
 
         if (user == username.login) {//if the user is validated, the review will be deleted
 
-            Review.deleteOne({id: review.id }).then(() => {
+            Review.deleteOne({_id: review.id }).then(() => {
 
                 console.log("The review has been deleted")
                 return res.sendStatus(200);
@@ -151,7 +151,7 @@ router.put("/", async (req, res) => {
 
                 //now that we know the review imdbId, we can filter it, and the option $set:req.body allows us to update 
                 //all the fields that are present in the body of the request
-                Review.updateOne({ id: review.id }, { $set: req.body }).then(() => {
+                Review.updateOne({_id: review.id }, { $set: req.body }).then(() => {
                     return res.status(200).send("The review has been updated");
                 });
 
