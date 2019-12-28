@@ -15,6 +15,8 @@ const Impression = require('../models/Impression');
 
 const auth = require('../auxiliar/authorizationResource');
 
+const average= require('../auxiliar/AverageRating');
+
 router.get('/', async (req,res) => {
     console.log(new Date() + " - GET " + req.originalUrl + " by " + req.ip);
 
@@ -119,7 +121,7 @@ router.delete('/', (req, res) => {
 
 });
 
-
+/*
 router.getAverageRating("/",(req,res)=>{
 
     var imdbIdAverage= req.body.imdbId;
@@ -140,6 +142,13 @@ router.getAverageRating("/",(req,res)=>{
 
 
 })
+*/
 
+router.average.getAverageRating("/", (req,res)=>{
+
+    res = average.getAverageRating(req.body.imdbId);
+    return res;
+
+});
 
 module.exports = router;
