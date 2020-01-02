@@ -71,6 +71,29 @@ describe("Reviews API", () => {
         });
           
     });
+
+    describe("POST /reviews", () => {
+
+        beforeAll(() => {
+            const dbSave = jest.spyOn(Review.prototype, "save");
+            dbSave.mockImplementation(() => {
+                return Promise.resolve();
+            });
+        });
+
+        describe("When required field imdbID missing", () => {
+            it("Should return 400 code: missing field", () => {
+                return request(app).post('/v1/reviews').send({
+                    
+                }).then((response) => {
+                    expect(response.status).toBe(400);
+                    expect(response.text).toBe("Required field/s missing: imdbId rating.");
+                });
+            });
+        });
+        
+    });
+
 });
 
 describe("Impressions API", () => {

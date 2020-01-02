@@ -1,10 +1,21 @@
 const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
-    imdbId: String,
-    rating: Number,
+    imdbId: {
+        type: String,
+        required: [true, 'Field imdbId is required']
+    },
+    rating: {
+        type: Number,
+        required: [true, 'Field rating is required'],
+        min: [1, 'You cannot rate below 1'],
+        max: [5, 'You cannot rate over 5']
+    },
     user: String,
-    title: String,
+    title: {
+        type: String,
+        required: [true, 'Field title is required']
+    },
     content: String,
     created: Date,
     impressions: {

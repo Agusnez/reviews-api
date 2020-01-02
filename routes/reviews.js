@@ -73,8 +73,8 @@ router.post('/', (req, res) => {
     console.log(new Date() + " - POST /reviews by " + req.ip);
 
     var imdbId = req.body.imdbId;
-    var name= req.body.user;
-    var rating = req.body.rating;
+    var name = req.body.user;
+    var rating = req.body.rating || 3;
 
     const review = new Review({
      imdbId: imdbId,
@@ -87,9 +87,19 @@ router.post('/', (req, res) => {
         spam: 0
      }
     });
+
     review.save().then(() => {
         console.log(new Date() + " - NEW REVIEW ADDED BY " + req.ip);
         res.sendStatus(200);
+    }).catch((err) => {
+        if (err.name == 'ValidationError') {
+            const body = {};
+            body.message = err.message;
+            body.json = err.errors;
+            res.status(400).send(body);
+        } else {
+            res.sendStatus(500);
+        }
     });
 });
 
