@@ -63,11 +63,13 @@ router.post("/", async (req,res) =>{
                             // And now add it to the actual value.
                             reviewDB.impressions[translateValue(value)] += 1;
                     
-                            reviewDB.save();
-                            res.send('Succesfully saved.');
-
+                            reviewDB.save().then(() => {
+                                res.send('Succesfully saved.');
+                            }).catch((err) => {
+                                res.sendStatus(500);
+                            });
                         }).catch((err) => {
-                            res.status(500).send('Internal Server Error.');
+                            res.sendStatus(500);
                         });
                         
                     }
