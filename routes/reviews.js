@@ -136,7 +136,7 @@ router.put("/", async (req, res) => {
     var reviewId = req.body.id;
     var authorizationToken = req.headers.authorization;
     let bearerToken = authorizationToken.split(' ')[1];
-    var username = await auth.getUsername(bearerToken);
+    let username = await auth.getUsername(bearerToken);
 
 
     Review.findById(reviewId).then((review) => {

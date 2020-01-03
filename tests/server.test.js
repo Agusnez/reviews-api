@@ -310,7 +310,6 @@ describe("Reviews Api Carlos", ()=>{
     
         });
 
-        //.delete(nombre de la review que quieres borrar a través del api path)
         it("Should the id be an invalid object, an error message appears", () =>{
 
             return request(app).del("/v1/reviews").send({id:"xdg9844 nn"}).set("Authorization", " Bearer eyxxx").then((response)=>{
