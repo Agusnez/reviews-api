@@ -69,17 +69,30 @@ router.get('/', async (req,res) => {
 
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
     console.log(new Date() + " - POST /reviews by " + req.ip);
 
-    var imdbId = req.body.imdbId;
-    var name= req.body.user;
-    var rating = req.body.rating;
+    let imdbId = req.body.imdbId;
+    
+    let rating = req.body.rating;
+    let title = req.body.title;
+    let content = req.body.content;
+
+    let authorizationToken = req.headers.authorization;
+    let user;
+
+    if (authorizationToken) {
+        let bearerToken = authorizationToken.split(' ')[1];
+        let userData = await auth.getUsername(bearerToken).catch((err) => {user = undefined});
+        user = userData.login;
+    }
 
     const review = new Review({
-     imdbId: imdbId,
-     rating: rating,
-     user: name,
+     imdbId,
+     rating,
+     title,
+     content,
+     user,
      created: new Date(),
      impressions: {
         likes: 0,
@@ -87,17 +100,30 @@ router.post('/', (req, res) => {
         spam: 0
      }
     });
-    review.save().then(() => {
-        console.log(new Date() + " - NEW REVIEW ADDED BY " + req.ip);
-        res.sendStatus(200);
-    });
+
+    if (await Review.countDocuments({user, imdbId}) == 0) {
+        review.save().then(() => {
+            console.log(new Date() + " - NEW REVIEW ADDED BY " + req.ip);
+            res.status(200).send('Review sucessfully saved!');
+        }).catch((err) => {
+            if (err.name == 'ValidationError') {
+                const body = {};
+                body.message = err.message;
+                body.json = err.errors;
+                res.status(400).send(body);
+            } else {
+                res.sendStatus(500);
+            }
+        });
+    } else {
+        res.status(400).send('You cannot write a review for the same imdbID.')
+    }
 });
 
 
 
 router.delete('/', (req, res) => {
    
-
     //The film's ID of the query is saved in ReviewId
     var reviewId=req.params.imdbId;
 
