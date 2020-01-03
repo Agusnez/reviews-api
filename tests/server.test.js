@@ -74,20 +74,173 @@ describe("Reviews API", () => {
 
     describe("POST /reviews", () => {
 
-        beforeAll(() => {
-            const dbSave = jest.spyOn(Review.prototype, "save");
-            dbSave.mockImplementation(() => {
-                return Promise.resolve();
+        describe("Creating a review without filling fields that are required", () => {
+            let dbSave;
+            let authMock;
+
+            beforeAll(() => {
+                dbSave = jest.spyOn(Review.prototype, "save");
+                dbSave.mockImplementation(() => {
+                    const errorObj = {
+                        name: 'ValidationError',
+                        errors: {},
+                        message: 'Mock error'
+                    }
+                    return Promise.reject(errorObj);
+                });
+
+                const dbCount = jest.spyOn(Review, "countDocuments");
+                dbCount.mockImplementation(() => {
+                    return Promise.resolve(0);
+                });
+
+                authMock = jest.fn();
+                authMock.mockReturnValue(
+                    Promise.resolve({
+                        mail: "user@example.com",
+                        login: "user"
+                    })
+                );
+                Auth.getUsername = authMock.bind(Auth);
+            });
+
+            it("Should return 400 code: missing field/s", () => {
+                return request(app).post('/v1/reviews').send({
+
+                }).then((response) => {
+                    expect(response.status).toBe(400);
+                    expect(response.body.message).toBe('Mock error');
+                    expect(dbSave).toHaveBeenCalledTimes(1);
+                    expect(authMock).toHaveBeenCalledTimes(0);
+                    dbSave.mockRestore();
+                });
             });
         });
 
-        describe("When required field imdbID missing", () => {
-            it("Should return 400 code: missing field", () => {
+        describe("Creating a review with required input", () => {
+            let dbSave;
+            let authMock;
+
+            beforeAll(() => {
+                dbSave = jest.spyOn(Review.prototype, "save");
+                dbSave.mockImplementation(() => {
+                    return Promise.resolve();
+                });
+
+                const dbCount = jest.spyOn(Review, "countDocuments");
+                dbCount.mockImplementation(() => {
+                    return Promise.resolve(0);
+                });
+
+                authMock = jest.fn();
+                authMock.mockReturnValue(
+                    Promise.resolve({
+                        mail: "user@example.com",
+                        login: "user"
+                    })
+                );
+                Auth.getUsername = authMock.bind(Auth);
+            });
+
+            it("Should save that review and return 200 code", () => {
+
                 return request(app).post('/v1/reviews').send({
-                    
+                    title: 'Buena película',
+                    rating: 4,
+                    content: 'Me ha gustado el actor principal',
+                    imdbId: 'tt2527338'
+                }).then((response) => {
+                    expect(response.status).toBe(200);
+                    expect(dbSave).toHaveBeenCalledTimes(1);
+                    expect(authMock).toHaveBeenCalledTimes(0);
+                    authMock.mockRestore();
+                    dbSave.mockRestore();
+                });
+            });
+        });
+
+        describe("Creating a duplicated review", () => {
+            let dbSave;
+            let authMock;
+
+            beforeAll(() => {
+                dbSave = jest.spyOn(Review.prototype, "save");
+                dbSave.mockImplementation(() => {
+                    return Promise.resolve();
+                });
+
+                const dbCount = jest.spyOn(Review, "countDocuments");
+                dbCount.mockImplementation(() => {
+                    return Promise.resolve(1);
+                });
+
+                authMock = jest.fn();
+                authMock.mockReturnValue(
+                    Promise.resolve({
+                        mail: "user@example.com",
+                        login: "user"
+                    })
+                );
+                Auth.getUsername = authMock.bind(Auth);
+            });
+
+            it("Should should return 400 and not save the review", () => {
+
+                return request(app).post('/v1/reviews').send({
+                    title: 'Buena película',
+                    rating: 4,
+                    content: 'Me ha gustado el actor principal',
+                    imdbId: 'tt2527338'
                 }).then((response) => {
                     expect(response.status).toBe(400);
-                    expect(response.text).toBe("Required field/s missing: imdbId rating.");
+                    expect(dbSave).toHaveBeenCalledTimes(0);
+                    expect(authMock).toHaveBeenCalledTimes(0);
+                    authMock.mockRestore();
+                    dbSave.mockRestore();
+                });
+            });
+        });
+
+        describe("Creating a review with auth token", () => {
+            let dbSave;
+            let authMock;
+
+            beforeAll(() => {
+                dbSave = jest.spyOn(Review.prototype, "save");
+                dbSave.mockImplementation(() => {
+                    return Promise.resolve();
+                });
+
+                const dbCount = jest.spyOn(Review, "countDocuments");
+                dbCount.mockImplementation(() => {
+                    return Promise.resolve(0);
+                });
+
+                authMock = jest.fn();
+                authMock.mockReturnValue(
+                    Promise.resolve({
+                        mail: "user@example.com",
+                        login: "user"
+                    })
+                );
+                Auth.getUsername = authMock.bind(Auth);
+
+            });
+
+            it("Should autocomplete user field", () => {
+                const spy = jest.spyOn(Review.prototype, 'save');
+
+                return request(app).post('/v1/reviews').send({
+                    title: 'Buena película',
+                    rating: 4,
+                    content: 'Me ha gustado el actor principal',
+                    imdbId: 'tt2527338'
+                }).set('Authorization', 'Bearer eyxxxx').then((response) => {
+                    expect(response.status).toBe(200);
+                    expect(spy).toHaveBeenCalledTimes(1);
+                    expect(authMock).toHaveBeenCalledTimes(1);
+                    authMock.mockRestore();
+                    spy.mockRestore();
                 });
             });
         });
@@ -115,7 +268,8 @@ describe("Impressions API", () => {
             dbCount = jest.spyOn(Review, "countDocuments");
             dbImpression = jest.spyOn(Impresion, "findOneAndUpdate");
             dbFindOne = jest.spyOn(Review, "findOne");
-            
+            dbSave = jest.spyOn(Review.prototype, "save");
+
             dbCount.mockImplementation((query) => {
                 return 1;
             });
@@ -137,6 +291,10 @@ describe("Impressions API", () => {
                     "created": "2019-10-10T19:09:36.884Z",
                     "id": "5e01f78dfeb6a107e098b582"
                   }));
+            });
+
+            dbSave.mockImplementation(()=>{
+                return Promise.resolve();
             });
 
         });
@@ -170,6 +328,7 @@ describe("Impressions API", () => {
             dbCount = jest.spyOn(Review, "countDocuments");
             dbImpression = jest.spyOn(Impresion, "findOneAndUpdate");
             dbFindOne = jest.spyOn(Review, "findOne");
+            dbSave = jest.spyOn(Review.prototype, "save");
             
             dbCount.mockImplementation((query) => {
                 return 1;

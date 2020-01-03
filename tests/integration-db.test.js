@@ -25,6 +25,7 @@ describe("Reviews DB connection", () => {
             },
             "imdbId": "tt0903747",
             "rating": 4,
+            "title": "Buena película",
             "user": "example",
             "created": "2019-12-10T19:09:36.884Z"
           });

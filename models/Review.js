@@ -11,7 +11,10 @@ const reviewSchema = new mongoose.Schema({
         min: [1, 'You cannot rate below 1'],
         max: [5, 'You cannot rate over 5']
     },
-    user: String,
+    user: {
+        type: String,
+        required: [true, 'Impossible to extract user. Please include a valid auth token.']
+    },
     title: {
         type: String,
         required: [true, 'Field title is required']
