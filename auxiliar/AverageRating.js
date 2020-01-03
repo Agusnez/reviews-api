@@ -9,6 +9,7 @@ class AverageRating{
 
         Review.find({imdbId:imdbIdAverage}).then((reviews)=>{
             reviews.forEach(review =>{sum=sum+review.rating});
+            
             //averageRating
             averageRating=sum/reviews.length;
 

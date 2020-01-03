@@ -121,28 +121,7 @@ router.delete('/', (req, res) => {
 
 });
 
-/*
-router.getAverageRating("/",(req,res)=>{
 
-    var imdbIdAverage= req.body.imdbId;
-    var sum=0;
-
-    Review.find({imdbId:imdbIdAverage}).then((reviews)=>{
-        reviews.forEach(review =>{sum+review.rating});
-        //averageRating
-        averageRating=sum/reviews.length;
-
-        return res.status(200).send(averageRating);
-
-        }).catch((err)=>{//if the imdbId is not valid, an error message will be sent
-        
-        return res.status(400).send("Invalid input, object invalid");
-
-        });
-
-
-})
-*/
 
 router.average.getAverageRating("/", (req,res)=>{
 
