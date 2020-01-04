@@ -225,138 +225,53 @@ describe("Impressions API", () => {
     });
 });
 
-describe("Get average rating api",() =>{
-    describe("The input is valid, and the average rating is calculated",()=>{
+describe("Rating computation", () => {
+
+    describe("Get average imdbId not found", () => {
+
+        let dbAggregate;
 
         beforeAll(() => {
-            const reviews = [
-                new Review({
-                    "impressions": {
-                    "likes": 0,
-                    "dislikes": 0,
-                    "spam": 0
-                    },
-                    "imdbId": "tt0903747",
-                    "rating": 4,
-                    "user": "agusnez",
-                    "created": "2019-12-10T19:09:36.884Z"
-                }),
-                new Review({
-                    "impressions": {
-                        "likes": 2,
-                        "dislikes": 0,
-                        "spam": 0
-                    },
-                    "imdbId": "tt0903747",
-                    "rating": 5,
-                    "user": "carcap",
-                    "created": "2019-10-10T19:09:36.884Z"
-                    }),
-
-                    new Review({
-                        "impressions": {
-                        "likes": 3,
-                        "dislikes": 0,
-                        "spam": 0
-                        },
-                        "imdbId": "tt0903748",
-                        "rating": 2,
-                        "user": "carcap",
-                        "created": "2019-11-12T20:19:36.884Z"
-                    })
-            ];
-
-
-            dbfind=jest.spyOn(Review,"find");
-
-            //we will test that find only gives back the reviews which imdbIds are "tt0903747". 
-            //Those are the first and the second reviews in the array:
-
-            dbfind.mockImplementation((imdbId)=>{
-                return reviews[1,2];
+            dbAggregate = jest.spyOn(Review, 'aggregate');
+            dbAggregate.mockImplementation((array) => {
+                return Promise.resolve([]);
             });
-
-
-        })
-
-        it("The input is valid and the average rating is calculated",()=>{
-
-            request(app).getAverageRating("/v1/reviews").send("tt0903747").then((response)=>{
-                expect(response.statusCode).toBe(200);
-            })
-
-
         });
 
+        it("Should notify that it could not compute the average rating", () => {
+            dbAggregate = jest.spyOn(Review, 'aggregate');
 
-        describe("Should the input be invalid, an error message will be sent",()=>{
-
-            beforeAll(() => {
-                const reviews = [
-                    new Review({
-                        "impressions": {
-                        "likes": 0,
-                        "dislikes": 0,
-                        "spam": 0
-                        },
-                        "imdbId": "tt0903747",
-                        "rating": 4,
-                        "user": "agusnez",
-                        "created": "2019-12-10T19:09:36.884Z"
-                    }),
-                    new Review({
-                        "impressions": {
-                            "likes": 2,
-                            "dislikes": 0,
-                            "spam": 0
-                        },
-                        "imdbId": "tt0903747",
-                        "rating": 5,
-                        "user": "carcap",
-                        "created": "2019-10-10T19:09:36.884Z"
-                        }),
-    
-                        new Review({
-                            "impressions": {
-                            "likes": 3,
-                            "dislikes": 0,
-                            "spam": 0
-                            },
-                            "imdbId": "tt0903748",
-                            "rating": 2,
-                            "user": "carcap",
-                            "created": "2019-11-12T20:19:36.884Z"
-                        })
-                ];
-    
-    
-                dbfind=jest.spyOn(Review,"find");
-    
-                //we will test that find gives back an error in the case of an invalid input
-                //Therefore the method returns null
-    
-                dbfind.mockImplementation((imdbId)=>{
-                    return null;
-                });
-    
-    
-            })
-    
-            it("The input is invalid and an error message should appear",()=>{
-    
-                request(app).getAverageRating("/v1/reviews").send("xmjhnyuengg9897738").then((response)=>{
-                    expect(response.statusCode).toBe(400);
-                })
-    
+            return request(app).get("/v1/ratings/tt000000").then((response) => {
+                expect(response.status).toBe(404);
+                expect(response.text).toBe("No rating found for that IMDB resource.")
+                expect(dbAggregate).toHaveBeenCalledTimes(1);
+                dbAggregate.mockRestore();
             });
-      });
+        });
+    });
 
-    })
+    describe("Get average imdbId found", () => {
 
-})
+        let dbAggregate;
 
+        beforeAll(() => {
+            dbAggregate = jest.spyOn(Review, 'aggregate');
+            dbAggregate.mockImplementationOnce((array) => {
+                return Promise.resolve([{
+                    average: 3.9
+                }]);
+            });
+        });
 
+        it("Should return the average", () => {
+            dbAggregate = jest.spyOn(Review, 'aggregate');
+            return request(app).get("/v1/ratings/tt0903747").then((response) => {
+                expect(response.status).toBe(200);
+                expect(response.body.average).toBe(3.9);
+                expect(dbAggregate).toHaveBeenCalledTimes(1);
+                dbAggregate.mockRestore();
+            });
+        });
+    });
 
-
-
-
+});

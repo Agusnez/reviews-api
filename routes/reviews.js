@@ -15,8 +15,6 @@ const Impression = require('../models/Impression');
 
 const auth = require('../auxiliar/authorizationResource');
 
-const average= require('../auxiliar/AverageRating');
-
 router.get('/', async (req,res) => {
     console.log(new Date() + " - GET " + req.originalUrl + " by " + req.ip);
 
@@ -95,11 +93,8 @@ router.post('/', (req, res) => {
     });
 });
 
-
-
 router.delete('/', (req, res) => {
    
-
     //The film's ID of the query is saved in ReviewId
     var reviewId=req.params.imdbId;
 
@@ -118,15 +113,6 @@ router.delete('/', (req, res) => {
         }
 
      });
-
-});
-
-
-
-router.average.getAverageRating("/", (req,res)=>{
-
-    res = average.getAverageRating(req.body.imdbId);
-    return res;
 
 });
 

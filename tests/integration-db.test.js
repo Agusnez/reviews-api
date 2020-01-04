@@ -1,10 +1,11 @@
+process.env.MONGO_ENV= 'test';
+
 const Review = require('../models/Review');
 const mongoose = require('mongoose');
 const db = require('../db');
 
 describe("Reviews DB connection", () => {
     beforeAll(() => {
-        process.env.MONGO_ENV= 'test';
         return db();
     });
 
