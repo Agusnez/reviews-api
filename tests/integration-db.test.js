@@ -1,4 +1,5 @@
-process.env.MONGO_ENV= 'test';
+// ENV Variable
+process.env.MONGO_ENV = 'test';
 
 const Review = require('../models/Review');
 const mongoose = require('mongoose');
@@ -18,13 +19,14 @@ describe("Reviews DB connection", () => {
     it ("Writes a Review in the DB", (done) => {
         const review = new Review({
             "impressions": {
-              "likes": 0,
+              "likes": 10,
               "dislikes": 0,
               "spam": 0
             },
             "imdbId": "tt0903747",
             "rating": 4,
-            "user": "agusnez",
+            "title": "Buena película",
+            "user": "example",
             "created": "2019-12-10T19:09:36.884Z"
           });
 
