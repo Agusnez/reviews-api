@@ -135,7 +135,7 @@ router.delete('/', async (req, res) => {
     Review.findById(reviewId).then((review) => {
         var user = review.user;
         //if the id exists, the user will be verified
-
+      
         if (user == username.login) {//if the user is validated, the review will be deleted
 
             Review.deleteOne({_id: review.id }).then(() => {

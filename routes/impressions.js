@@ -1,5 +1,5 @@
 /*
- *  reviews.js
+ *  impressions.js
  *  
  *  Impressions Creation
  *

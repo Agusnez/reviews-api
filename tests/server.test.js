@@ -408,6 +408,57 @@ describe("Impressions API", () => {
     });
 });
 
+describe("Rating computation", () => {
+
+    describe("Get average imdbId not found", () => {
+
+        let dbAggregate;
+
+        beforeAll(() => {
+            dbAggregate = jest.spyOn(Review, 'aggregate');
+            dbAggregate.mockImplementation((array) => {
+                return Promise.resolve([]);
+            });
+        });
+
+        it("Should notify that it could not compute the average rating", () => {
+            dbAggregate = jest.spyOn(Review, 'aggregate');
+
+            return request(app).get("/v1/ratings/tt000000").then((response) => {
+                expect(response.status).toBe(404);
+                expect(response.text).toBe("No rating found for that IMDB resource.")
+                expect(dbAggregate).toHaveBeenCalledTimes(1);
+                dbAggregate.mockRestore();
+            });
+        });
+    });
+
+    describe("Get average imdbId found", () => {
+
+        let dbAggregate;
+
+        beforeAll(() => {
+            dbAggregate = jest.spyOn(Review, 'aggregate');
+            dbAggregate.mockImplementationOnce((array) => {
+                return Promise.resolve([{
+                    average: 3.9
+                }]);
+            });
+        });
+
+        it("Should return the average", () => {
+            dbAggregate = jest.spyOn(Review, 'aggregate');
+            return request(app).get("/v1/ratings/tt0903747").then((response) => {
+                expect(response.status).toBe(200);
+                expect(response.body.average).toBe(3.9);
+                expect(dbAggregate).toHaveBeenCalledTimes(1);
+                dbAggregate.mockRestore();
+            });
+        });
+    });
+
+});
+
 describe("Reviews Api Carlos", ()=>{
 
     describe(" DELETE / reviews: Authenticated and Review ID found", () =>{
@@ -707,7 +758,3 @@ describe(" PUT /reviews: Review ID doesn't exist", () =>{
 
     })
 })
-
-
-    
-
