@@ -14,16 +14,18 @@
 
 const express = require("express");
 const bodyParser = require("body-parser");
-var app = express();
+const cors = require('cors')
+const app = express();
 
 // Our own routes requirement
-var reviews = require("./routes/reviews.js");
-var impressions = require("./routes/impressions.js");
+const reviews = require("./routes/reviews.js");
+const impressions = require("./routes/impressions.js");
 
 const BASE_URL = '/v1';
 
 // Middleware
 app.use(bodyParser.json());
+app.use(cors());
 
 // Our own routes declaration
 app.use(BASE_URL + '/reviews', reviews);
