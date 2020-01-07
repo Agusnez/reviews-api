@@ -84,7 +84,9 @@ router.post('/', async (req, res) => {
     if (authorizationToken) {
         let bearerToken = authorizationToken.split(' ')[1];
         let userData = await auth.getUsername(bearerToken).catch((err) => {user = undefined});
-        user = userData.login;
+        if(userData) {
+            user = userData.login;
+        }
     }
 
     const review = new Review({

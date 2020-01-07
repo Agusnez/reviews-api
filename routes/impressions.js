@@ -15,7 +15,7 @@ const Impression = require('../models/Impression');
 
 const auth = require('../auxiliar/authorizationResource');
 
-router.post("/", async (req,res) =>{
+router.post("/", async (req, res) => {
 
     console.log(new Date() + " - POST " + req.originalUrl + " by " + req.ip);
 
@@ -28,7 +28,7 @@ router.post("/", async (req,res) =>{
         userObject = await auth.getUsername(bearerToken).catch((err) => {
             if (err.statusCode == '401' && err.error)
                 res.status(err.statusCode).send(err.error);
-            else 
+            else
                 res.status(500).send("Something wrong happend during authentication");
         });
 
@@ -46,33 +46,30 @@ router.post("/", async (req,res) =>{
             let isValidReview = await reviewExists(review);
 
             if (isValueValid(value) && isValidReview) {
-                
+
                 // Check if the impression needs to be updated.
-                Impression.findOneAndUpdate(object, {review, user, value}, {upsert: true, useFindAndModify: false}).then((err, impression) => {
+                Impression.findOneAndUpdate(object, { review, user, value }, { upsert: true, useFindAndModify: false }).then((impression) => {
 
-                    if (err) {
-                        res.send(500, {error: err});
-                    } else {
-                        Review.findOne({_id:review}).then((reviewDB) => {
+                    Review.findOne({ _id: review }).then((reviewDB) => {
 
-                            // If a impression is found: Remove the impression from the total count in the review.
-                            if (impression) {
-                                reviewDB.impressions[translateValue(impression.value)] -= 1;
-                            } 
-                            
-                            // And now add it to the actual value.
-                            reviewDB.impressions[translateValue(value)] += 1;
-                    
-                            reviewDB.save().then(() => {
-                                res.send('Succesfully saved.');
-                            }).catch((err) => {
-                                res.sendStatus(500);
-                            });
+                        // If a impression is found: Remove the impression from the total count in the review.
+                        if (impression) {
+                            reviewDB.impressions[translateValue(impression.value)] -= 1;
+                        }
+
+                        // And now add it to the actual value.
+                        reviewDB.impressions[translateValue(value)] += 1;
+
+                        reviewDB.save().then(() => {
+                            res.send('Succesfully saved.');
                         }).catch((err) => {
-                            res.sendStatus(500);
+                            res.status(500).send("Save error");
                         });
-                        
-                    }
+                    }).catch((err) => {
+                        res.status(500).send("Find error");
+                    });
+
+
                 });
             } else {
                 res.status(400).send("Invalid impression input");
@@ -83,7 +80,7 @@ router.post("/", async (req,res) =>{
     } else {
         res.status(401).send("You are not allowed to create an impression. Authenticate first.");
     }
- 
+
 })
 
 // Auxiliary functions
@@ -96,15 +93,15 @@ function isValueValid(value) {
 async function reviewExists(review) {
     let count = 0;
     try {
-        count = await Review.countDocuments({_id: review});
+        count = await Review.countDocuments({ _id: review });
     } catch (err) {
         return false;
     }
-    
-    return count > 0;     
+
+    return count > 0;
 }
 
-function translateValue(value){
+function translateValue(value) {
     if (value == 'like') {
         return 'likes'
     } else if (value == 'dislike') {
