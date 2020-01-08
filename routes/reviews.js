@@ -128,17 +128,25 @@ router.delete('/', async (req, res) => {
     //The film's ID of the query is saved in ReviewId
     var reviewId = req.body.id;
 
-    //The token is saved
     var authorizationToken = req.headers.authorization;
-    let bearerToken = authorizationToken.split(" ")[1];
-    var username = await auth.getUsername(bearerToken);
+
+    let username = '';
+
+    //The token is saved
+    if (authorizationToken) {
+        let bearerToken = authorizationToken.split(" ")[1];
+        let userData = await auth.getUsername(bearerToken).catch((err) => {username = undefined});
+        if(userData) {
+            username = userData.login;
+        }
+    }
 
 
     Review.findById(reviewId).then((review) => {
         var user = review.user;
         //if the id exists, the user will be verified
       
-        if (user == username.login) {//if the user is validated, the review will be deleted
+        if (user == username) {//if the user is validated, the review will be deleted
 
             Review.deleteOne({_id: review.id }).then(() => {
 
