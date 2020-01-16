@@ -1,0 +1,388 @@
+{
+	"info": {
+		"_postman_id": "f842e547-feaf-460c-96b5-4bf130a26c0c",
+		"name": "Reviews API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Reviews",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/v1/reviews?skip=1limit=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"v1",
+						"reviews"
+					],
+					"query": [
+						{
+							"key": "skip",
+							"value": "1limit=2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Valid token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "1d96c54f-a9e7-4063-ae2f-d5b1fa2c3f3a",
+						"exec": [
+							"console.log(pm.collectionVariables.get(\"token\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://fis-backend-login.herokuapp.com/api/v1/user",
+					"protocol": "https",
+					"host": [
+						"fis-backend-login",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "744146e3-a6ae-48d9-aab6-d6ef7e40abe0",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "9566630c-05ea-4841-9b04-743c340149cd",
+						"exec": [
+							"pm.collectionVariables.set(\"token\", pm.response.json().token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"login\":\"\",\n\t\"password\":\"\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://fis-backend-login.herokuapp.com/api/v1/authenticate",
+					"protocol": "https",
+					"host": [
+						"fis-backend-login",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"api",
+						"v1",
+						"authenticate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Impression",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFndXNuZXoiLCJpYXQiOjE1Nzg0MjU1ODksImV4cCI6MTU3ODQyOTE4OX0.0puyuf1rlKfKcJJsuY2qoedDmiv0m6YRT-LKqH9yD-s",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"review\":\"5e14d876c0faaa691b9b6866\",\n\t\"value\": \"dislike\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/impressions",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"impressions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Review",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\": \"5e07409ae9fc310a740970ce\",\n\t\"rating\": 2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/reviews",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create review",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n \"rating\": \"4\",\n \"title\": \"Buena peli\",\n \"imdbId\": \"tt2527339\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{host}}/v1/reviews",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get average rating of a IMDB Resource",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/v1/ratings/tt090374",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"v1",
+						"ratings",
+						"tt090374"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Last five reviews",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Review",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"id\":\"5e14e01413a63ca1f91ffc18\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://reviews-api.herokuapp.com/v1/reviews",
+					"protocol": "http",
+					"host": [
+						"reviews-api",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"v1",
+						"reviews"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "c4c41b57-5f27-4564-949a-cc29cccad8d1",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "fd6eba9d-a683-4c71-aafd-59bac7fda2a4",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "b5053435-c9e0-4b3b-bacc-323af47248d6",
+			"key": "token",
+			"value": "eyxxx",
+			"type": "string"
+		},
+		{
+			"id": "85dc8458-9a61-4781-92ee-55a212b49c60",
+			"key": "host",
+			"value": "https://reviews-api.herokuapp.com",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
